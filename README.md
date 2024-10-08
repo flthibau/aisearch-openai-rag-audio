@@ -12,8 +12,8 @@ We'll follow 4 steps to get this example running in your own environment: pre-re
 
 ### 1. Pre-requisites
 You'll need instances of the following Azure services. You can re-use service instances you have already or create new ones.
-1. [Azure OpenAI](https://ms.portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI), with 2 model deployments, one of the **gpt-4o-realtime-preview** model, and one for embeddings (e.g.text-embedding-3-large, text-embedding-3-small, or text-embedding-ada-002)
-1. [Azure AI Search](https://ms.portal.azure.com/#create/Microsoft.Search), any tier Basic or above will work, ideally with [Semantic Search enabled](https://learn.microsoft.com/azure/search/semantic-how-to-enable-disable)
+1. [Azure OpenAI](https://ms.portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI), with 2 model deployments, one of the **gpt-4o-realtime-preview** model, and one for embeddings (e.g.text-embedding-3-large, text-embedding-3-small, or text-embedding-ada-002). Model availability per region can be found [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models#global-standard-model-availability).
+1. [Azure AI Search](https://ms.portal.azure.com/#create/Microsoft.Search), any tier Basic or above will work, ideally with [Semantic Search enabled](https://learn.microsoft.com/azure/search/semantic-how-to-enable-disable). Feature availability per region can be found [here](https://learn.microsoft.com/en-us/azure/search/search-region-support).
 1. [Azure Blob Storage](https://ms.portal.azure.com/#create/Microsoft.StorageAccount-ARM), with a container that has the content that represents your knowledge base (we include some sample data in this repo if you want an easy starting point)
 
 ### 2. Creating an index
@@ -72,7 +72,6 @@ You can run the project in your local VS Code Dev Container using the [Dev Conta
    - [Powershell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
 
 2. Clone the repo (`git clone https://github.com/Azure-Samples/aisearch-openai-rag-audio`)
-3. Create a Python virtual environment and activate it.
 4. The app needs to know which service endpoints to use for the Azure OpenAI and Azure AI Search. The following variables can be set as environment variables, or you can create a ".env" file in the "app/backend/" directory with this content.
    ```
    AZURE_OPENAI_ENDPOINT=wss://<your instance name>.openai.azure.com
@@ -103,6 +102,20 @@ You can run the project in your local VS Code Dev Container using the [Dev Conta
 
 Once the app is running, when you navigate to the URL above you should see the start screen of the app:
 ![app screenshot](docs/talktoyourdataapp.png)
+
+### Frontend: enabling direct communication with AOAI Realtime API
+You can make the frontend skip the middle tier and talk to the websockets AOAI Realtime API directly, if you choose to do so. However note this'll stop RAG from happening, and will requiring exposing your API key in the frontend which is very insecure. DO NOT use this in production.
+
+Just Pass some extra parameters to the `useRealtime` hook:
+```typescript
+const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
+        useDirectAoaiApi: true,
+        aoaiEndpointOverride: "wss://<NAME>.openai.azure.com",
+        aoaiApiKeyOverride: "<YOUR API KEY, INSECURE!!!>",
+        aoaiModelOverride: "gpt-4o-realtime-preview",
+        ...
+);
+```
 
 ### Notes
 
